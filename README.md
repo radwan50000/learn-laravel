@@ -450,7 +450,6 @@ class AuthController extends Controller {
 > This Requests is put in controller called  ``` CreateEmployee.php ```
 
 ```php
-
 <?php
 
 namespace App\Http\Controllers;
@@ -462,7 +461,8 @@ class CreateEmployee extends Controller
 {
     //
 
-    public function AddEmployee(Request $request){
+    public function AddEmployee(Request $request)
+    {
         $employee = Employee::create([
             "employee_name" => $request->input("emp_name") ?? "Unknown",
             "employee_salary" => $request->input('emp_salary') ?? 0.00,
@@ -472,13 +472,113 @@ class CreateEmployee extends Controller
         return $employee;
     }
 
-    public function GetEmployees(Request $requset){
+    public function GetEmployees(Request $requset)
+    {
         $employees = Employee::all();
 
         return $employees;
     }
+
+    public function GetEmployee($id)
+    {
+        $employee = Employee::find($id);
+        if ($employee) {
+            return $employee;
+        }
+        return response()->json([
+            'data' => "Employee Not Found",
+        ], 404);
+    }
+
+
+    public function DeleteEmployee($id)
+    {
+        $employee = Employee::find($id);
+        $employee->delete();
+
+        return $employee;
+    }
+
+    public function UpdateEmpData(Request $request , $id)
+    {
+        // dd($id);
+        $emp = Employee::find($id);
+
+        if ($emp && $request->input('name')) {
+            $emp->employee_name = $request->input('name') ?? "Unknown";
+
+            $emp->save();
+
+            return $emp;
+        }
+
+        return response()->json(['data' => 'Error'],404);
+
+
+    }
+
+
+
 }
 
+```
+
+
+### web.php
+
+
+```php
+
+<?php
+
+use App\Http\Controllers\CreateEmployee;
+use App\Http\Controllers\Home;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\CreateUser;
+
+Route::get('/', function () {
+    return view('welcome');
+});
+
+Route::get('/home', Home::class . '@getHome');
+
+
+Route::prefix("")->withoutMiddleware("web")->group(function () {
+    Route::post('/createRandomUser', [CreateUser::class, 'createRandomUser']);
+});
+
+
+Route::prefix('api')->withoutMiddleware('web')->group(function () {
+    Route::post('/testApi', function (Request $request) {
+        return response()->json([
+            "data" => [
+                "Operation" => "Success",
+                "user-name" => $request->input('name') ?? null,
+            ],
+        ], 200);
+    });
+});
+
+
+
+
+Route::prefix("")->withoutMiddleware('web')->group(function () {
+    Route::post("/createEmployee", [CreateEmployee::class, 'AddEmployee']);
+
+});
+
+
+Route::get('/getEmployees', [CreateEmployee::class, 'GetEmployees']);
+
+Route::get('/getEmployee/{id}', [CreateEmployee::class, 'GetEmployee']);
+
+
+
+Route::prefix("")->withoutMiddleware("web")->group(function(){
+    Route::delete('/deleteEmployee/{id}',[CreateEmployee::class , 'DeleteEmployee']);
+    Route::put('/updateEmployee/{id}',[CreateEmployee::class , 'UpdateEmpData']);
+});
 
 
 ```
