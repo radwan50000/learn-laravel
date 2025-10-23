@@ -444,3 +444,41 @@ class AuthController extends Controller {
 
 🎯 **End of Revision — You’re Ready to Build!**
 > This file summarizes all Laravel essentials with real-life coding flow, ready for interviews and project development.
+
+## Get & Post Requset :
+
+> This Requests is put in controller called  ``` CreateEmployee.php ```
+
+```php
+
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Employee;
+use Illuminate\Http\Request;
+
+class CreateEmployee extends Controller
+{
+    //
+
+    public function AddEmployee(Request $request){
+        $employee = Employee::create([
+            "employee_name" => $request->input("emp_name") ?? "Unknown",
+            "employee_salary" => $request->input('emp_salary') ?? 0.00,
+            'employee_rate' => $request->input('emp_rate') ?? 0,
+            'employee_field' => $request->input('emp_field') ?? 'علي باب الله',
+        ]);
+        return $employee;
+    }
+
+    public function GetEmployees(Request $requset){
+        $employees = Employee::all();
+
+        return $employees;
+    }
+}
+
+
+
+```
